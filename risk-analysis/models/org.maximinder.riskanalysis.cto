@@ -14,6 +14,99 @@
 
 /**
  * Write your model definitions here
+ * 
+ * TODO: Figure out how to separate these models into domain-specific 
+ * files or some other smaller grouping strategy.
  */
 
 namespace org.maximinder.riskanalysis
+
+enum AssetType {
+  o VEHICLE
+  o DEVICE
+  o REALESTATE
+}
+
+enum BillingType {
+  o MONTHLY
+  o YEARLY
+}
+
+enum Status {
+  o PENDING
+  o APPROVED
+}
+
+participant PolicyHolder identified by id {
+  o String id
+  o String name
+  o Double balance default = 0.0
+}
+
+participant PolicyIssuer identified by id {
+  o String id
+  o String name
+  o Double balance default = 0.0
+}
+
+asset PrivateAsset identified by id {
+  o String id
+  --> PolicyHolder holder
+  o String externalCode
+  o AssetType type
+  o Double value default = 0.0
+  o Double riskScore default = 0.0
+}
+
+asset InsuranceOffer identified by id {
+  o String id
+  --> PolicyHolder holder
+  --> PolicyIssuer issuer
+  --> PrivateAsset privateAsset
+  o BillingType billingType default = "MONTHLY"
+  o Integer duration
+  o Double cost
+  o Status status default = "PENDING"
+}
+
+asset InsuranceClaim identified by id {
+  o String id
+  --> PolicyHolder holder
+  --> PolicyIssuer issuer
+  --> PrivateAsset privateAsset
+  o Status status default = "PENDING"
+  o String description
+}
+
+transaction AcceptInsuranceOffer {
+  --> InsuranceOffer offer
+}
+
+transaction CreateInsuranceOffer {
+  --> PolicyHolder holder
+  --> PolicyIssuer issuer
+  --> PrivateAsset privateAsset
+  o BillingType billingType default = "MONTHLY"
+  o Double cost
+}
+
+transaction CreatePrivateAsset {
+  --> PolicyHolder holder
+  o AssetType type
+  o Double value default = 0.0
+}
+
+transaction CreateInsuranceClaim {
+  --> PolicyHolder holder
+  --> PolicyIssuer issuer
+  o String description
+}
+
+transaction ProcessInsuranceClaim {
+  --> InsuranceClaim claim 
+  o Status status
+}
+
+transaction CalculateRisk {
+  --> PrivateAsset privateAsset
+}
