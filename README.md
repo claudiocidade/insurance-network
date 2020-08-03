@@ -1,1 +1,1 @@
-# insurance-network
+# Permissioned Blockchain Example: Insurance Network
